@@ -44,8 +44,8 @@ try {
     execSync("git remote remove origin", { stdio: "ignore" });
   } catch (e) {}
 
-  // Embed the access token in the git remote URL safely using username and token
-  const authedRemoteUrl = `https://${username}:${token}@github.com/jacksonmongbam123/school.git`;
+  // Embed the access token in the git remote URL safely using x-access-token
+  const authedRemoteUrl = `https://x-access-token:${token}@github.com/jacksonmongbam123/school.git`;
   execSync(`git remote add origin ${authedRemoteUrl}`, { stdio: "ignore" });
 
   console.log("Staging all changes...");
