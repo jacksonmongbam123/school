@@ -1,0 +1,6 @@
+{
+  "name": "School Backend Server",
+  "description": "School management system backend API and WebSocket server, integrated with MongoDB Atlas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

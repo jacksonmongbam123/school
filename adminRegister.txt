@@ -1,0 +1,57 @@
+{
+    "user_type_id": "",
+    "nic": "",
+    "email": "",
+    "password": "",
+    "passport": "",
+    "title_id": "",
+    "first_name": "",
+    "middle_name": "",
+    "last_name": "",
+    "sex": "",
+    "dob": "",
+    "phone": "",
+    "access_level_id": ""
+}
+{
+    "nic": "abcd",
+    "phone": "8837092378",
+    "password": "jenish"
+}
+
+
+
+{
+    "user_type_id": "a1",
+    "nic": "jackson",
+    "email": "jacson@gmail.com",
+    "passport": "abcsd",
+    "title_id": "Mr",
+    "first_name": "Jenish",
+    "middle_name": "J",
+    "last_name": "D",
+    "sex": "male",
+    "dob": "1998-05-04",
+    "phone": "8837092370",
+    "access_level_id": "8989"
+}
+
+//master
+{
+    "user_type_id": "a1",
+    "nic": "jackson",
+    "password": "jenish",
+    "email": "jacson@gmail.com",
+    "passport": "abcsd",
+    "title_id": "Mr",
+    "first_name": "Jenish",
+    "middle_name": "J",
+    "last_name": "D",
+    "sex": "male",
+    "dob": "1998-05-04",
+    "phone": "8837092370",
+    "access_level_id": "8989"
+}
+
+"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3R5cGUiOiJhZG1pbiIsImlhdCI6MTY4MDgwNTAzOCwiZXhwIjoxNjg0NDA1MDM4fQ.56ceZQhNwDVQjD1XA-or8fyB-qXXE0DeDim5UX8gmms",
+    "user_type": "admin"
