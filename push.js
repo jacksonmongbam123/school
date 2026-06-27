@@ -33,6 +33,11 @@ try {
   if (!fs.existsSync(".git")) {
     execSync("git init", { stdio: "inherit" });
   }
+  try {
+    execSync("git branch -M main", { stdio: "inherit" });
+  } catch (e) {
+    console.log("Could not rename branch to main (might not be any commits yet):", e.message);
+  }
 
   console.log("Adding remote origin...");
   try {
