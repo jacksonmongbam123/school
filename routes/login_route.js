@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authSchema = require("../schemas/auth_schema");
+const tokenSchema = require("../schemas/token_schema");
 
 router.post("/", async (req, res) => {
   try {
@@ -38,6 +39,18 @@ router.post("/", async (req, res) => {
           process.env.JWT_SECRET || "abms_cloud_secret_2026",
           { expiresIn: "24h" }
         );
+
+        // Save token to database
+        try {
+          const tokenModel = new tokenSchema({
+            user_id: "usr_sandbox_live_99",
+            token: token,
+            user_type: demoConfig.role
+          });
+          await tokenModel.save();
+        } catch (tokenErr) {
+          console.error("Token save error:", tokenErr);
+        }
         return res.status(200).json({
           status: 200,
           message: "Login Successful (Sandbox Demo Mode Bypassed)",
@@ -74,6 +87,18 @@ router.post("/", async (req, res) => {
     }
 
     const token = jwt.sign({ user_id: user._id, role: user.user_type }, process.env.JWT_SECRET || "abms_secret", { expiresIn: "12h" });
+
+    // Save token to database
+    try {
+      const tokenModel = new tokenSchema({
+        user_id: String(user.user_id || user._id),
+        token: token,
+        user_type: user.user_type
+      });
+      await tokenModel.save();
+    } catch (tokenErr) {
+      console.error("Token save error:", tokenErr);
+    }
     return res.status(200).json({ status: 200, message: "Login Successful", token, user });
   } catch (err) {
     console.error("Login route exception:", err);
