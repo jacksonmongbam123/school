@@ -14,8 +14,6 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ status: 400, message: "Username and password are required!" });
     }
 
-
-
     // Resilient case-insensitive regex query against MongoDB Atlas
     const userList = await authSchema.find({
       $or: [
@@ -52,6 +50,31 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error("Login route exception:", err);
     return res.status(500).json({ status: 500, message: "Internal cloud backend error." });
+  }
+});
+
+/**
+ * CRITICAL SECURITY FIX: Session Verification Endpoint
+ * Frontend (Keeper) should call GET /login/verify on mount.
+ * Checks live MongoDB records. If user was deleted from DB, revokes session (401).
+ */
+router.get("/verify", async (req, res) => {
+  const authHeader = req.headers["authorization"] || req.header("x-auth-token");
+  if (!authHeader) return res.status(401).json({ status: 401, message: "No token provided" });
+
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "abms_secret");
+    const liveUser = await authSchema.findById(decoded.user_id || decoded._id);
+    
+    if (!liveUser) {
+      return res.status(401).json({ status: 401, code: "USER_DELETED", message: "Session revoked: User document deleted." });
+    }
+
+    return res.status(200).json({ status: 200, message: "Session active", user: liveUser });
+  } catch (err) {
+    return res.status(401).json({ status: 401, message: "Invalid or expired JWT token." });
   }
 });
 
