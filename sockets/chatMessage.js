@@ -12,7 +12,7 @@ module.exports = (io, socket) => {
         }
 
         const newMessage = new chatMessageSchema({
-            _id: mongoose.Types.ObjectId(),
+            _id: new mongoose.Types.ObjectId(),
             sender: messageFromClientToServer.sender,
             receiver: messageFromClientToServer.receiver,
             message: messageFromClientToServer.message

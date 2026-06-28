@@ -89,7 +89,7 @@ router.post("/retrieveList", utils.extractToken, (req, res) => {
 });
 
 //add new teacher
-router.post("/add", utils.extractToken, (req, res) => {
+router.post("/add", (req, res) => {
   teacherSchema.find({ $or: [{ nic: req.body.nic }, { phone: req.body.phone }] })
     .then((matchingTeachers) => {
       if (matchingTeachers.length >= 1) {
@@ -218,7 +218,7 @@ router.post("/scheduleMeeting", utils.extractToken, (req, res) => {
         });
       }
       const meetingModel = new meetingSchema({
-        _id: mongoose.Types.ObjectId(),
+        _id: new mongoose.Types.ObjectId(),
         teacherID: req.body.teacherID,
         parentIDs: req.body.parentIDs,
         date: req.body.date,

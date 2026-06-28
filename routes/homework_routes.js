@@ -33,7 +33,7 @@ router.post("/upload", utils.extractToken, (req, res) => {
             }
 
             let fileStream;
-            const newObjectID = mongoose.Types.ObjectId();
+            const newObjectID = new mongoose.Types.ObjectId();
             req.pipe(req.busboy);
             req.busboy.on('file', function (fieldName, file, fileName) {
                 const file_extension = path.extname(fileName);

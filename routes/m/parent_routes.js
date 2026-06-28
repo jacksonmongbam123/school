@@ -89,18 +89,17 @@ router.post("/retrieveList", utils.extractToken, (req, res) => {
 });
 
 //add new parent
-router.post("/add", utils.extractToken, (req, res) => {
-  tokenSchema
-    .find({ token: req.token })
-    .exec()
-    .then((resultList) => {
-      if (resultList.length < 1) {
-        return res.status(401).json({
-          message: "Invalid Token",
+router.post("/add", (req, res) => {
+  parentSchema.find({ $or: [{ nic: req.body.nic }, { phone: req.body.phone }] })
+    .then((matchingParents) => {
+      if (matchingParents.length >= 1) {
+        return res.status(409).json({
+          message: "parent already exists",
         });
       }
+
       const hash = bcrypt.hashSync(req.body.password, 8);
-      const newObjectID = mongoose.Types.ObjectId();
+      const newObjectID = new mongoose.Types.ObjectId();
       let parentModel = new parentSchema({
         _id: newObjectID,
         user_type: constants.USER_TYPE_PARENT,
@@ -119,6 +118,7 @@ router.post("/add", utils.extractToken, (req, res) => {
         occupation_id: req.body.occupation_id,
         marital_status_id: req.body.marital_status_id,
       });
+
       const authModel = new authSchema({
         user_id: newObjectID,
         nic: req.body.nic,
@@ -126,12 +126,11 @@ router.post("/add", utils.extractToken, (req, res) => {
         user_type: constants.USER_TYPE_PARENT,
         password_hash: hash,
       });
+
       authModel.save().catch((err) => {
-        console.log(err.message);
-        res.status(500).json({
-          error: err,
-        });
+        console.log("Auth save error:", err.message);
       });
+
       parentModel
         .save()
         .then((result) => {
@@ -146,6 +145,10 @@ router.post("/add", utils.extractToken, (req, res) => {
             error: err,
           });
         });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: err });
     });
 });
 

@@ -88,7 +88,7 @@ router.post("/retrieveList", utils.extractToken, (req, res) => {
 });
 
 //Add new student to db
-router.post("/add", utils.extractToken, (req, res) => {
+router.post("/add", (req, res) => {
   studentSchema.find({ $or: [{ nic: req.body.nic }, { phone: req.body.phone }] })
     .then((matchingStudents) => {
       if (matchingStudents.length >= 1) {

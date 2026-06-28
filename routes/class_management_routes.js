@@ -20,7 +20,7 @@ router.post("/attendance/add", utils.extractToken, (req, res) => {
                 });
             }
             const attendanceModel = new attendanceSchema({
-                _id: mongoose.Types.ObjectId(),
+                _id: new mongoose.Types.ObjectId(),
                 studentID: req.body.studentID,
                 date: req.body.date,
                 attended: req.body.attended,
@@ -97,7 +97,7 @@ router.post("/fee/add", utils.extractToken, (req, res) => {
                 });
             }
             const feeModel = new feeSchema({
-                _id: mongoose.Types.ObjectId(),
+                _id: new mongoose.Types.ObjectId(),
                 studentID: req.body.studentID,
                 term: req.body.term,
                 year: req.body.year,
