@@ -181,33 +181,16 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
 });
 
 // Delete the student
-router.delete("/delete/:id", utils.extractToken, (req, res) => {
-  tokenSchema
-    .find({ token: req.token })
-    .exec()
-    .then((resultList) => {
-      if (resultList.length < 1) {
-        return res.status(401).json({
-          message: "Invalid Token",
-        });
-      }
-      const idStr = String(req.params.id);
-      studentSchema.findOneAndDelete({ _id: req.params.id })
-        .then(() => {
-          // Delete ALL auth records for this user (by user_id field)
-          return authSchema.deleteMany({ user_id: idStr });
-        })
-        .then(() => {
-          // Delete ALL token records for this user
-          return tokenSchema.deleteMany({ user_id: idStr });
-        })
-        .then(() => {
-          res.json("Successfully removed");
-        })
-        .catch((err) => {
-          res.status(500).json({ error: err.message || err });
-        });
-    });
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const idStr = String(req.params.id);
+    await studentSchema.findOneAndDelete({ _id: req.params.id });
+    await authSchema.deleteMany({ user_id: idStr });
+    await tokenSchema.deleteMany({ user_id: idStr });
+    res.json("Successfully removed");
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
 });
 
 router.post("/find", (req, res) => {

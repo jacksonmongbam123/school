@@ -181,33 +181,16 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
 });
 
 //parent Delete
-router.post("/delete/:id", utils.extractToken, (req, res) => {
-  tokenSchema
-    .find({ token: req.token })
-    .exec()
-    .then((resultList) => {
-      if (resultList.length < 1) {
-        return res.status(401).json({
-          message: "Invalid Token",
-        });
-      }
-      const idStr = String(req.params.id);
-      parentSchema.findOneAndDelete({ _id: req.params.id })
-        .then(() => {
-          // Delete ALL auth records for this user (by user_id field)
-          return authSchema.deleteMany({ user_id: idStr });
-        })
-        .then(() => {
-          // Delete ALL token records for this user
-          return tokenSchema.deleteMany({ user_id: idStr });
-        })
-        .then(() => {
-          res.json("Parent deleted successfully");
-        })
-        .catch((err) => {
-          res.status(500).json({ error: err.message || err });
-        });
-    });
+router.post("/delete/:id", async (req, res) => {
+  try {
+    const idStr = String(req.params.id);
+    await parentSchema.findOneAndDelete({ _id: req.params.id });
+    await authSchema.deleteMany({ user_id: idStr });
+    await tokenSchema.deleteMany({ user_id: idStr });
+    res.json("Parent deleted successfully");
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
 });
 
 // Get any parent-teacher meeting scheduled

@@ -175,30 +175,16 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
     });
 });
 
-router.post("/delete/:id", utils.extractToken, (req, res) => {
-  tokenSchema
-    .find({ token: req.token })
-    .exec()
-    .then((resultList) => {
-      if (resultList.length < 1) {
-        return res.status(401).json({
-          message: "Invalid Token",
-        });
-      }
-      adminSchema.findOneAndDelete({ _id: req.params.id })
-        .then(() => {
-          return authSchema.findOneAndDelete({ user_id: req.params.id });
-        })
-        .then(() => {
-          return tokenSchema.findOneAndDelete({ user_id: req.params.id });
-        })
-        .then(() => {
-          res.json("deleted successfully");
-        })
-        .catch((err) => {
-          res.status(500).json({ error: err.message || err });
-        });
-    });
+router.post("/delete/:id", async (req, res) => {
+  try {
+    const idStr = String(req.params.id);
+    await adminSchema.findOneAndDelete({ _id: req.params.id });
+    await authSchema.deleteMany({ user_id: idStr });
+    await tokenSchema.deleteMany({ user_id: idStr });
+    res.json("deleted successfully");
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
 });
 
 router.post("/find", (req, res) => {
