@@ -14,58 +14,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ status: 400, message: "Username and password are required!" });
     }
 
-    // ⚡ Universal Sandbox Dev Bypass (Auto-authenticates official demo evaluation IDs)
-    const DEMO_ACCOUNTS_MAP = {
-      // ABMS Portal Demo Users
-      "IUN27062027ST": { password: ["studentPass99", "demo123", "admin"], role: "student", name: "Jackson Evaluation User" },
-      "REG-2026-1049": { password: ["studentPass99", "demo123"], role: "student", name: "Jackson Evaluation User" },
-      "INST_9921_NIC": { password: ["instructorSecure88", "demo123"], role: "instructor", name: "Instructor Evaluation User" },
-      "ADMIN": { password: ["admin", "adminPass123"], role: "administrator", name: "Admin User" },
-      "ADMIN_NIC_123": { password: ["adminPass123", "admin"], role: "administrator", name: "Admin User" },
-      "+94771234567": { password: ["parentPass321"], role: "parents", name: "Parent User" },
 
-      // SQUAD Demo Users
-      "JACKSON": { password: ["jenish_password"], role: "instructor", name: "Jenish J D" },
-      "ALMAMATER": { password: ["secure_pass_99"], role: "student", name: "Elena R Rostova" },
-      "MVANCE": { password: ["admin_sys_master"], role: "administrator", name: "Marcus V Vance" }
-    };
-
-    const upperUsername = username.toUpperCase();
-    if (DEMO_ACCOUNTS_MAP.hasOwnProperty(upperUsername)) {
-      const demoConfig = DEMO_ACCOUNTS_MAP[upperUsername];
-      if (demoConfig.password.includes(password)) {
-        const token = jwt.sign(
-          { user_id: "usr_sandbox_live_99", role: demoConfig.role },
-          process.env.JWT_SECRET || "abms_cloud_secret_2026",
-          { expiresIn: "24h" }
-        );
-
-        // Save token to database
-        try {
-          const tokenModel = new tokenSchema({
-            user_id: "usr_sandbox_live_99",
-            token: token,
-            user_type: demoConfig.role
-          });
-          await tokenModel.save();
-        } catch (tokenErr) {
-          console.error("Token save error:", tokenErr);
-        }
-        return res.status(200).json({
-          status: 200,
-          message: "Login Successful (Sandbox Demo Mode Bypassed)",
-          token,
-          user: { 
-            name: demoConfig.name, 
-            reg_no: upperUsername, 
-            nic: upperUsername,
-            phone: upperUsername,
-            user_type: demoConfig.role,
-            role: demoConfig.role
-          }
-        });
-      }
-    }
 
     // Resilient case-insensitive regex query against MongoDB Atlas
     const userList = await authSchema.find({
