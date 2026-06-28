@@ -4,6 +4,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authSchema = require("../schemas/auth_schema");
 const tokenSchema = require("../schemas/token_schema");
+const studentSchema = require("../schemas/m/student_schema");
+const teacherSchema = require("../schemas/m/teacher_schema");
+const parentSchema = require("../schemas/m/parent_schema");
+const adminSchema = require("../schemas/m/admin_schema");
+const constants = require("../utils/constants");
 
 router.post("/", async (req, res) => {
   try {
@@ -46,7 +51,35 @@ router.post("/", async (req, res) => {
     } catch (tokenErr) {
       console.error("Token save error:", tokenErr);
     }
-    return res.status(200).json({ status: 200, message: "Login Successful", token, user });
+
+    // Fetch full profile data from appropriate collection
+    let fullProfile = null;
+    const userId = user.user_id || user._id;
+    try {
+      if (user.user_type === constants.USER_TYPE_STUDENT) {
+        fullProfile = await studentSchema.findById(userId).lean();
+      } else if (user.user_type === constants.USER_TYPE_TEACHER) {
+        fullProfile = await teacherSchema.findById(userId).lean();
+      } else if (user.user_type === constants.USER_TYPE_PARENT) {
+        fullProfile = await parentSchema.findById(userId).lean();
+      } else if (user.user_type === constants.USER_TYPE_ADMIN) {
+        fullProfile = await adminSchema.findById(userId).lean();
+      }
+    } catch (profileErr) {
+      console.error("Profile fetch error:", profileErr);
+    }
+
+    // Merge auth data with full profile
+    const userResponse = {
+      ...((fullProfile && typeof fullProfile === 'object') ? fullProfile : {}),
+      user_id: userId,
+      nic: user.nic,
+      phone: user.phone,
+      user_type: user.user_type,
+      role: user.user_type
+    };
+
+    return res.status(200).json({ status: 200, message: "Login Successful", token, user: userResponse });
   } catch (err) {
     console.error("Login route exception:", err);
     return res.status(500).json({ status: 500, message: "Internal cloud backend error." });
@@ -67,12 +100,39 @@ router.get("/verify", async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "abms_secret");
     const liveUser = await authSchema.findById(decoded.user_id || decoded._id);
-    
+
     if (!liveUser) {
       return res.status(401).json({ status: 401, code: "USER_DELETED", message: "Session revoked: User document deleted." });
     }
 
-    return res.status(200).json({ status: 200, message: "Session active", user: liveUser });
+    // Fetch full profile data from appropriate collection
+    let fullProfile = null;
+    const userId = liveUser.user_id || liveUser._id;
+    try {
+      if (liveUser.user_type === constants.USER_TYPE_STUDENT) {
+        fullProfile = await studentSchema.findById(userId).lean();
+      } else if (liveUser.user_type === constants.USER_TYPE_TEACHER) {
+        fullProfile = await teacherSchema.findById(userId).lean();
+      } else if (liveUser.user_type === constants.USER_TYPE_PARENT) {
+        fullProfile = await parentSchema.findById(userId).lean();
+      } else if (liveUser.user_type === constants.USER_TYPE_ADMIN) {
+        fullProfile = await adminSchema.findById(userId).lean();
+      }
+    } catch (profileErr) {
+      console.error("Profile fetch error:", profileErr);
+    }
+
+    // Merge auth data with full profile
+    const userResponse = {
+      ...((fullProfile && typeof fullProfile === 'object') ? fullProfile : {}),
+      user_id: userId,
+      nic: liveUser.nic,
+      phone: liveUser.phone,
+      user_type: liveUser.user_type,
+      role: liveUser.user_type
+    };
+
+    return res.status(200).json({ status: 200, message: "Session active", user: userResponse });
   } catch (err) {
     return res.status(401).json({ status: 401, message: "Invalid or expired JWT token." });
   }

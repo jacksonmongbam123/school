@@ -193,6 +193,12 @@ router.post("/delete/:id", utils.extractToken, (req, res) => {
       }
       parentSchema.findOneAndDelete({ _id: req.params.id })
         .then(() => {
+          return authSchema.findOneAndDelete({ user_id: req.params.id });
+        })
+        .then(() => {
+          return tokenSchema.findOneAndDelete({ user_id: req.params.id });
+        })
+        .then(() => {
           res.json("Parent deleted successfully");
         })
         .catch((err) => {

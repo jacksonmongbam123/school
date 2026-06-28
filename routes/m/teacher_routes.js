@@ -198,6 +198,12 @@ router.delete("/delete/:id", utils.extractToken, (req, res) => {
       }
       teacherSchema.findOneAndDelete({ _id: req.params.id })
         .then(() => {
+          return authSchema.findOneAndDelete({ user_id: req.params.id });
+        })
+        .then(() => {
+          return tokenSchema.findOneAndDelete({ user_id: req.params.id });
+        })
+        .then(() => {
           res.json("Deleted successfully");
         })
         .catch((err) => {
