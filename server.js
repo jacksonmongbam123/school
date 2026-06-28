@@ -56,3 +56,4 @@ app.use("/rel", relRoutes);
 socketServer.on(socketEvents.CONNECT, async (socket) => {
     require('./sockets/chatMessage')(io, socket);
 });
+
