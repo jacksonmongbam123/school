@@ -132,22 +132,24 @@ router.post("/fee/updateStatus", utils.extractToken, (req, res) => {
                     message: "Invalid Token",
                 });
             }
-            feeSchema.find({studentID: req.body.studentID, term: req.body.term, year: req.body.year}, (err, result) => {
-                if (!result) {
-                    res.status(404).send("data is not found");
-                } else {
-                    result[0].feeStatus = req.body.feeStatus;
-                    result[0]
-                        .save()
-                        .then(result => {
-                            res.json("Fee status updated");
-                        })
-                        .catch(err => {
-                            res.status(400).send("Update not successful");
-                        })
-                }
-                res.json(result);
-            });
+            feeSchema.find({studentID: req.body.studentID, term: req.body.term, year: req.body.year})
+                .then((result) => {
+                    if (!result || result.length === 0) {
+                        return res.status(404).send("data is not found");
+                    } else {
+                        result[0].feeStatus = req.body.feeStatus;
+                        return result[0].save()
+                            .then(() => {
+                                return res.json("Fee status updated");
+                            })
+                            .catch(err => {
+                                return res.status(400).send("Update not successful");
+                            });
+                    }
+                })
+                .catch((err) => {
+                    return res.status(500).json({ error: err.message || err });
+                });
         });
 });
 //todo fee not paid reminder after 10 days of each term. have a term start end date table

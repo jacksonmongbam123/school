@@ -1283,3 +1283,15 @@ As a QA the testing more importantly concerned to give a good quality of product
 Tracking the error in UI if errors are tracked and identified in application reporting to developer to fix the bugs and give back to retest the specific functions to check get pass.
 
 ![alt_text](docs/images/image29.png "image_tooltip")
+
+
+## 🚀 Render.com Deployment Guidelines
+
+If you are deploying this application on **Render.com**, please make sure you configure your Web Service settings correctly in the **Render Dashboard**:
+
+1. **Root Directory**: Leave this field **completely empty** (do not set it to `test` or `school`). Your principal `package.json` and `server.js` files are located in the repository root directory, so the root directory setting must remain blank or be set to the repository root (`/`).
+2. **Build Command**: Set this to `npm install` (since there is a `package-lock.json` file present).
+3. **Start Command**: Set this to `npm start` or `node server.js`.
+4. **Environment Variables**: Make sure to define the following under the **Environment** tab:
+   - `PORT`: `3000`
+   - `MONGO_URI` or `MONGODB_URI`: Your MongoDB Atlas connection string.

@@ -4,7 +4,8 @@
   "description": "Used to test the school management app backend",
   "main": "test.js",
   "scripts": {
-    "test": "jest --verbose --watch-All"
+    "test": "jest --verbose --watch-All",
+    "start": "node ../server.js"
   },
   "keywords": [],
   "author": "niruhanv@gmail.com",
