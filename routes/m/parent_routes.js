@@ -20,13 +20,14 @@ router.post("/retrieve", utils.extractToken, (req, res) => {
           message: "Invalid Token",
         });
       }
-      parentSchema.find((err, parents) => {
-        if (err) {
-          console.log(err);
-        } else {
+      parentSchema.find()
+        .then((parents) => {
           res.json(parents);
-        }
-      });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).json({ error: err });
+        });
     });
 });
 
@@ -187,13 +188,13 @@ router.post("/delete/:id", utils.extractToken, (req, res) => {
           message: "Invalid Token",
         });
       }
-      parentSchema.findOneAndDelete({ _id: req.params.id }, (err, parent) => {
-        if (err) {
-          res.json(err);
-        } else {
+      parentSchema.findOneAndDelete({ _id: req.params.id })
+        .then(() => {
           res.json("Parent deleted successfully");
-        }
-      });
+        })
+        .catch((err) => {
+          res.status(500).json({ error: err.message || err });
+        });
     });
 });
 

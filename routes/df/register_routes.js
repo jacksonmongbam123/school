@@ -76,7 +76,12 @@ router.post("/add", async (req, res) => {
       dob: dob ? new Date(dob) : undefined,
       phone: phone,
       access_level_id: access_level_id,
-      is_active: true
+      is_active: true,
+      // Full process data fields
+      end_date: req.body.end_date,
+      teacher_grade_id: req.body.teacher_grade_id,
+      marital_status_id: req.body.marital_status_id,
+      occupation_id: req.body.occupation_id
     };
 
     // If student or teacher, they can have reg_no

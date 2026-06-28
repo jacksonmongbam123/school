@@ -54,9 +54,13 @@ router.post("/attendance/lookup", utils.extractToken, (req, res) => {
                     message: "Invalid Token",
                 });
             }
-            attendanceSchema.find({studentID: req.body.studentID, date: req.body.date}, (err, result) => {
-                res.json(result);
-            });
+            attendanceSchema.find({studentID: req.body.studentID, date: req.body.date})
+                .then((result) => {
+                    res.json(result);
+                })
+                .catch((err) => {
+                    res.status(500).json({ error: err });
+                });
         });
 });
 
@@ -71,9 +75,13 @@ router.get("/attendance/absence", utils.extractToken, (req, res) => { // todo
                     message: "Invalid Token",
                 });
             }
-            attendanceSchema.find({attended: false}, (err, result) => {
-                res.json(result);
-            });
+            attendanceSchema.find({attended: false})
+                .then((result) => {
+                    res.json(result);
+                })
+                .catch((err) => {
+                    res.status(500).json({ error: err });
+                });
         });
 });
 

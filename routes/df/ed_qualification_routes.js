@@ -62,16 +62,13 @@ router.post("/update/:id", (req, res) => {
 });
 
 router.post("/delete/:id", (req, res) => {
-    databaseSchema.findOneAndDelete(
-        {_id: req.params.id},
-        (err, result) => {
-            if (err) {
-                res.json(err);
-            } else {
-                res.json("Deleted successfully");
-            }
-        }
-    );
+    databaseSchema.findOneAndDelete({_id: req.params.id})
+        .then((result) => {
+            res.json("Deleted successfully");
+        })
+        .catch((err) => {
+            res.status(500).json(err);
+        });
 });
 
 module.exports = router;

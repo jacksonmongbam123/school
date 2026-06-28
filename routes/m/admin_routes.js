@@ -20,13 +20,14 @@ router.post("/retrieve/", utils.extractToken, (req, res) => {
           message: "Invalid Token",
         });
       }
-      adminSchema.find((err, adminList) => {
-        if (err) {
-          console.log(err);
-        } else {
+      adminSchema.find()
+        .then((adminList) => {
           res.json({ adminList });
-        }
-      });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).json({ error: err });
+        });
     });
 });
 
@@ -184,31 +185,19 @@ router.post("/delete/:id", utils.extractToken, (req, res) => {
           message: "Invalid Token",
         });
       }
-      adminSchema.findOneAndDelete({ _id: req.params.id }).exec().then((err, admin) => {
-        if (err) {
-          res.json(err);
-        } else {
-          authSchema.findOneAndDelete(
-            { user_id: req.params.id },
-            (err, admin) => {
-              if (err) {
-                res.json(err);
-              } else {
-                tokenSchema.findOneAndDelete(
-                  { user_id: req.params.id },
-                  (err, admin) => {
-                    if (err) {
-                      res.json(err);
-                    } else {
-                      res.json("deleted successfully");
-                    }
-                  }
-                );
-              }
-            }
-          );
-        }
-      });
+      adminSchema.findOneAndDelete({ _id: req.params.id })
+        .then(() => {
+          return authSchema.findOneAndDelete({ user_id: req.params.id });
+        })
+        .then(() => {
+          return tokenSchema.findOneAndDelete({ user_id: req.params.id });
+        })
+        .then(() => {
+          res.json("deleted successfully");
+        })
+        .catch((err) => {
+          res.status(500).json({ error: err.message || err });
+        });
     });
 });
 
