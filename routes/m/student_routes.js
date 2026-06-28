@@ -191,12 +191,15 @@ router.delete("/delete/:id", utils.extractToken, (req, res) => {
           message: "Invalid Token",
         });
       }
+      const idStr = String(req.params.id);
       studentSchema.findOneAndDelete({ _id: req.params.id })
         .then(() => {
-          return authSchema.findOneAndDelete({ user_id: req.params.id });
+          // Delete ALL auth records for this user (by user_id field)
+          return authSchema.deleteMany({ user_id: idStr });
         })
         .then(() => {
-          return tokenSchema.findOneAndDelete({ user_id: req.params.id });
+          // Delete ALL token records for this user
+          return tokenSchema.deleteMany({ user_id: idStr });
         })
         .then(() => {
           res.json("Successfully removed");
