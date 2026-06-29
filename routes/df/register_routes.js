@@ -24,7 +24,8 @@ router.post("/add", async (req, res) => {
       sex,
       dob,
       phone,
-      access_level_id
+      access_level_id,
+      organization_id
     } = req.body;
 
     if (!nic || !password) {
@@ -77,6 +78,7 @@ router.post("/add", async (req, res) => {
       phone: phone,
       access_level_id: access_level_id,
       is_active: true,
+      organization_id: organization_id || null,
       // Full process data fields
       end_date: req.body.end_date,
       teacher_grade_id: req.body.teacher_grade_id,

@@ -1,6 +1,43 @@
 const express = require("express");
 const router = express.Router();
 const databaseSchema = require("../../schemas/df/institute_schema");
+const studentSchema = require("../../schemas/m/student_schema");
+const teacherSchema = require("../../schemas/m/teacher_schema");
+const adminSchema = require("../../schemas/m/admin_schema");
+const parentSchema = require("../../schemas/m/parent_schema");
+
+// GET all institutes (used by SQUAD dropdown)
+router.get("/all", async (req, res) => {
+  try {
+    const institutes = await databaseSchema.find();
+    res.json(institutes);
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
+});
+
+// GET all users mapped to a specific organization
+router.get("/users/:org_id", async (req, res) => {
+  try {
+    const org_id = req.params.org_id;
+    const [students, teachers, admins, parents] = await Promise.all([
+      studentSchema.find({ organization_id: org_id }),
+      teacherSchema.find({ organization_id: org_id }),
+      adminSchema.find({ organization_id: org_id }),
+      parentSchema.find({ organization_id: org_id }),
+    ]);
+    res.json({
+      organization_id: org_id,
+      students,
+      teachers,
+      administrators: admins,
+      parents,
+      total: students.length + teachers.length + admins.length + parents.length
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
+});
 
 router.post("/retrieve", (req, res) => {
     databaseSchema.find()

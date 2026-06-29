@@ -115,6 +115,7 @@ router.post("/add", (req, res) => {
         dob: req.body.dob,
         phone: req.body.phone,
         access_level_id: req.body.access_level_id,
+        organization_id: req.body.organization_id || null,
         occupation_id: req.body.occupation_id,
         marital_status_id: req.body.marital_status_id,
       });

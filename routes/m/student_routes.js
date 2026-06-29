@@ -114,6 +114,7 @@ router.post("/add", (req, res) => {
         dob: req.body.dob,
         phone: req.body.phone,
         access_level_id: req.body.access_level_id,
+        organization_id: req.body.organization_id || null,
         reg_no: req.body.reg_no,
         reg_date: req.body.reg_date,
         end_date: req.body.end_date,

@@ -44,6 +44,10 @@ const contactSchema = new mongoose.Schema({
   is_active: {
     type: Boolean,
   },
+  organization_id: {
+    type: String,
+    default: null,
+  },
 });
 
 module.exports = contactSchema;

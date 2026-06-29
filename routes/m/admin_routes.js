@@ -114,6 +114,7 @@ router.post("/add", async (req, res) => {
           dob: req.body.dob,
           phone: req.body.phone,
           access_level_id: req.body.access_level_id,
+        organization_id: req.body.organization_id || null,
         });
         const authModel = new authSchema({
           user_id: newObjectID,
