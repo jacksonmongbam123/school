@@ -189,8 +189,17 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const idStr = String(req.params.id);
-    await teacherSchema.findOneAndDelete({ _id: req.params.id });
-    await authSchema.deleteMany({ user_id: idStr });
+    const record = await teacherSchema.findOneAndDelete({ _id: req.params.id });
+    if (!record) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    await authSchema.deleteMany({
+      $or: [
+        { user_id: idStr },
+        { nic: record.nic },
+        { phone: record.phone }
+      ]
+    });
     await tokenSchema.deleteMany({ user_id: idStr });
     res.json("Deleted successfully");
   } catch (err) {

@@ -184,11 +184,22 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const idStr = String(req.params.id);
-    await studentSchema.findOneAndDelete({ _id: req.params.id });
-    await authSchema.deleteMany({ user_id: idStr });
+    const student = await studentSchema.findOneAndDelete({ _id: req.params.id });
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+    // Delete auth by user_id, and also by nic/phone as fallback
+    await authSchema.deleteMany({
+      $or: [
+        { user_id: idStr },
+        { nic: student.nic },
+        { phone: student.phone }
+      ]
+    });
     await tokenSchema.deleteMany({ user_id: idStr });
     res.json("Successfully removed");
   } catch (err) {
+    console.error("Student delete error:", err);
     res.status(500).json({ error: err.message || err });
   }
 });
