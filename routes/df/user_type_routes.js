@@ -2,6 +2,17 @@ const express = require("express");
 const router = express.Router();
 const databaseSchema = require("../../schemas/df/user_type_schema");
 
+// GET all user types (for SQUAD and Keeper dropdowns)
+router.get("/all", async (req, res) => {
+  try {
+    const userTypes = await databaseSchema.find();
+    const userTypesList = userTypes.map(u => u.type_name).filter(Boolean);
+    res.json(userTypesList);
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
+});
+
 router.post("/retrieve", (req, res) => {
     databaseSchema.find()
         .skip(req.body.skip)

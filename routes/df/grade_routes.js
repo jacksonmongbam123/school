@@ -2,6 +2,17 @@ const express = require("express");
 const router = express.Router();
 const databaseSchema = require("../../schemas/df/grade_schema");
 
+// GET all grades (for SQUAD and Keeper dropdowns)
+router.get("/all", async (req, res) => {
+  try {
+    const grades = await databaseSchema.find();
+    const gradesList = grades.map(g => g.grade).filter(Boolean);
+    res.json(gradesList);
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
+});
+
 router.post("/retrieve", (req, res) => {
   databaseSchema
     .find()
