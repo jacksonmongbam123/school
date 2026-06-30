@@ -89,13 +89,11 @@ router.post("/delete-by-name", (req, res) => {
     if (!name || !name.trim()) {
         return res.status(400).json({ error: "Name is required" });
     }
-    const field = route_file.includes('grade') ? 'grade' : 'type_name';
-    const query = { [field]: name.trim() };
-    
-    databaseSchema.findOneAndDelete(query)
+
+    databaseSchema.findOneAndDelete({ type_name: name.trim() })
         .then((result) => {
             if (!result) {
-                return res.status(404).json({ error: "Item not found" });
+                return res.status(404).json({ error: "User type not found" });
             }
             res.json({ message: "Deleted successfully" });
         })
