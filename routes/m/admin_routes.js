@@ -197,6 +197,29 @@ router.post("/delete/:id", async (req, res) => {
   }
 });
 
+router.get("/by-nic/:nic", async (req, res) => {
+  try {
+    const { nic } = req.params;
+    const admin = await adminSchema.findOne({ 
+      $or: [{ nic }, { phone: nic }] 
+    });
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+    res.json({
+      _id: admin._id,
+      nic: admin.nic,
+      phone: admin.phone,
+      organization_id: admin.organization_id,
+      access_level_id: admin.access_level_id,
+      first_name: admin.first_name,
+      last_name: admin.last_name
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
+});
+
 router.post("/find", (req, res) => {
   var name = req.body.name;
   var query = {};
@@ -209,6 +232,32 @@ router.post("/find", (req, res) => {
         res.json(resultList);
       }
     });
+});
+
+// GET all users (students, teachers, parents) for an organization
+router.get("/organization/:org_id/users", async (req, res) => {
+  try {
+    const { org_id } = req.params;
+    const studentSchema = require("../../schemas/m/student_schema");
+    const teacherSchema = require("../../schemas/m/teacher_schema");
+    const parentSchema = require("../../schemas/m/parent_schema");
+
+    const [students, teachers, parents] = await Promise.all([
+      studentSchema.find({ organization_id: org_id }),
+      teacherSchema.find({ organization_id: org_id }),
+      parentSchema.find({ organization_id: org_id })
+    ]);
+
+    res.json({
+      organization_id: org_id,
+      students: students || [],
+      teachers: teachers || [],
+      parents: parents || [],
+      total: (students?.length || 0) + (teachers?.length || 0) + (parents?.length || 0)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
+  }
 });
 
 module.exports = router;
