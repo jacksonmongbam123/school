@@ -6,7 +6,7 @@ const databaseSchema = require("../../schemas/df/grade_schema");
 router.get("/all", async (req, res) => {
   try {
     const grades = await databaseSchema.find();
-    const gradesList = grades.map(g => g.grade).filter(Boolean);
+    const gradesList = grades.map(g => ({ _id: g._id, grade: g.grade })).filter(g => g.grade);
     res.json(gradesList);
   } catch (err) {
     res.status(500).json({ error: err.message || err });

@@ -6,7 +6,7 @@ const databaseSchema = require("../../schemas/df/user_type_schema");
 router.get("/all", async (req, res) => {
   try {
     const userTypes = await databaseSchema.find();
-    const userTypesList = userTypes.map(u => u.type_name).filter(Boolean);
+    const userTypesList = userTypes.map(u => ({ _id: u._id, type_name: u.type_name })).filter(u => u.type_name);
     res.json(userTypesList);
   } catch (err) {
     res.status(500).json({ error: err.message || err });

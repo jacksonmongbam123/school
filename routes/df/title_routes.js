@@ -6,7 +6,7 @@ const databaseSchema = require("../../schemas/df/title_schema");
 router.get("/all", async (req, res) => {
     try {
         const titles = await databaseSchema.find();
-        const titlesList = titles.map(t => t.title);
+        const titlesList = titles.map(t => ({ _id: t._id, title: t.title }));
         res.json(titlesList);
     } catch (err) {
         res.status(500).json({ error: err.message || err });
