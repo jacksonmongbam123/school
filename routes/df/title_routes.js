@@ -82,4 +82,22 @@ router.post("/delete/:id", (req, res) => {
         });
 });
 
+// DELETE by title name (for SQUAD)
+router.post("/delete-by-name", (req, res) => {
+    const { title } = req.body;
+    if (!title || !title.trim()) {
+        return res.status(400).json({ error: "Title is required" });
+    }
+    databaseSchema.findOneAndDelete({ title: title.trim() })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).json({ error: "Title not found" });
+            }
+            res.json({ message: "Deleted successfully", title: result.title });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.message || err });
+        });
+});
+
 module.exports = router;

@@ -100,4 +100,26 @@ router.post("/find", (req, res) => {
     });
 });
 
+
+// DELETE by name (for SQUAD)
+router.post("/delete-by-name", (req, res) => {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+        return res.status(400).json({ error: "Name is required" });
+    }
+    const field = route_file.includes('grade') ? 'grade' : 'type_name';
+    const query = { [field]: name.trim() };
+    
+    databaseSchema.findOneAndDelete(query)
+        .then((result) => {
+            if (!result) {
+                return res.status(404).json({ error: "Item not found" });
+            }
+            res.json({ message: "Deleted successfully" });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.message || err });
+        });
+});
+
 module.exports = router;
