@@ -2,6 +2,17 @@ const express = require("express");
 const router = express.Router();
 const databaseSchema = require("../../schemas/df/title_schema");
 
+// GET all titles (for SQUAD and Keeper dropdowns)
+router.get("/all", async (req, res) => {
+    try {
+        const titles = await databaseSchema.find();
+        const titlesList = titles.map(t => t.title);
+        res.json(titlesList);
+    } catch (err) {
+        res.status(500).json({ error: err.message || err });
+    }
+});
+
 router.post("/retrieve", (req, res) => {
     databaseSchema.find()
         .skip(req.body.skip)
