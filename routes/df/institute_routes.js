@@ -108,4 +108,22 @@ router.post("/delete/:id", (req, res) => {
         });
 });
 
+// DELETE by name (for SQUAD)
+router.post("/delete-by-name", (req, res) => {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+        return res.status(400).json({ error: "Institute name is required" });
+    }
+    databaseSchema.findOneAndDelete({ name: name.trim() })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).json({ error: "Institute not found" });
+            }
+            res.json({ message: "Deleted successfully", name: result.name });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.message || err });
+        });
+});
+
 module.exports = router;
