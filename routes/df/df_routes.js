@@ -15,6 +15,7 @@ const subjectRoutes = require("./subject_routes");
 const teacherGradeRoutes = require("./teacher_grade_routes");
 const titleRoutes = require("./title_routes");
 const userTypeRoutes = require("./user_type_routes");
+const sectionRoutes = require("./section_routes");
 const registerRoutes = require("./register_routes");
 
 app.use("/accessLevel", accessLevelRoutes);
@@ -32,6 +33,7 @@ app.use("/subject", subjectRoutes);
 app.use("/teacherGrade", teacherGradeRoutes);
 app.use("/title", titleRoutes);
 app.use("/userType", userTypeRoutes);
+app.use("/section", sectionRoutes);
 app.use("/register", registerRoutes);
 
 module.exports = app;
