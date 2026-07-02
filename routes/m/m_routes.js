@@ -10,9 +10,6 @@ const subjectRoutes = require("./subject_routes.js");
 const extraActivityRoutes = require("./extra_activity_routes.js");
 const marksRoutes = require("./marks_routes.js");
 const organizationRoutes = require("./organization_routes.js");
-const studentClassMappingRoutes = require("./student_class_mapping_routes.js");
-const teacherClassSubjectMappingRoutes = require("./teacher_class_subject_mapping_routes.js");
-const parentStudentMappingRoutes = require("./parent_student_mapping_routes.js");
 
 app.use("/admin", adminRoutes);
 app.use("/student", studentRoutes);
@@ -24,8 +21,5 @@ app.use("/subject", subjectRoutes);
 app.use("/extraActivity", extraActivityRoutes);
 app.use("/marks", marksRoutes);
 app.use("/organization", organizationRoutes);
-app.use("/studentClassMapping", studentClassMappingRoutes);
-app.use("/teacherClassSubjectMapping", teacherClassSubjectMappingRoutes);
-app.use("/parentStudentMapping", parentStudentMappingRoutes);
 
 module.exports = app;
