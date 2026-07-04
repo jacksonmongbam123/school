@@ -241,11 +241,13 @@ router.get("/organization/:org_id/users", async (req, res) => {
     const studentSchema = require("../../schemas/m/student_schema");
     const teacherSchema = require("../../schemas/m/teacher_schema");
     const parentSchema = require("../../schemas/m/parent_schema");
+    const adminSchema = require("../../schemas/m/admin_schema");
 
-    const [students, teachers, parents] = await Promise.all([
+    const [students, teachers, parents, admins] = await Promise.all([
       studentSchema.find({ organization_id: org_id }),
       teacherSchema.find({ organization_id: org_id }),
-      parentSchema.find({ organization_id: org_id })
+      parentSchema.find({ organization_id: org_id }),
+      adminSchema.find({ organization_id: org_id })
     ]);
 
     res.json({
@@ -253,7 +255,8 @@ router.get("/organization/:org_id/users", async (req, res) => {
       students: students || [],
       teachers: teachers || [],
       parents: parents || [],
-      total: (students?.length || 0) + (teachers?.length || 0) + (parents?.length || 0)
+      admins: admins || [],
+      total: (students?.length || 0) + (teachers?.length || 0) + (parents?.length || 0) + (admins?.length || 0)
     });
   } catch (err) {
     res.status(500).json({ error: err.message || err });
