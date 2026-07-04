@@ -165,7 +165,7 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
         });
       }
       studentSchema
-        .update({ _id: req.params.id }, req.body)
+        .updateOne({ _id: req.params.id }, req.body)
         .then((result) => {
           res.status(200).json({
             message: "Updated successfully",

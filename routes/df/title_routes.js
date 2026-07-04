@@ -57,7 +57,7 @@ router.post("/add", (req, res) => {
 });
 
 router.post("/update/:id", (req, res) => {
-    databaseSchema.update({_id: req.params.id}, req.body)
+    databaseSchema.updateOne({_id: req.params.id}, req.body)
         .then(result => {
             res.status(200).json({
                 message: "Updated successfully",
