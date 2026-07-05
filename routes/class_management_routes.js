@@ -165,5 +165,53 @@ router.post("/fee/updateStatus", utils.extractToken, (req, res) => {
                 });
         });
 });
+
+//retrieve all fee records
+router.post("/fee/all", utils.extractToken, (req, res) => {
+    tokenSchema
+        .find({ token: req.token })
+        .exec()
+        .then((resultList) => {
+            if (resultList.length < 1) {
+                return res.status(401).json({
+                    message: "Invalid Token",
+                });
+            }
+            feeSchema.find({})
+                .then((result) => {
+                    res.json(result);
+                })
+                .catch((err) => {
+                    res.status(500).json({ error: err.message || err });
+                });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.message || err });
+        });
+});
+
+router.get("/fee/all", utils.extractToken, (req, res) => {
+    tokenSchema
+        .find({ token: req.token })
+        .exec()
+        .then((resultList) => {
+            if (resultList.length < 1) {
+                return res.status(401).json({
+                    message: "Invalid Token",
+                });
+            }
+            feeSchema.find({})
+                .then((result) => {
+                    res.json(result);
+                })
+                .catch((err) => {
+                    res.status(500).json({ error: err.message || err });
+                });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.message || err });
+        });
+});
+
 //todo fee not paid reminder after 10 days of each term. have a term start end date table
 module.exports = router;
