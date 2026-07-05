@@ -13,6 +13,7 @@ module.exports = {
   TOKEN_COLLECTION_NAME: "tokens",
   HOMEWORK_COLLECTION_NAME: "homeworks",
   MEETING_COLLECTION_NAME: "meetings",
+  NOTIFICATION_COLLECTION_NAME: "notifications",
   HOMEWORK_DIRECTORY_PATH: "./uploads/homework/",
 
   // DF tables

@@ -10,6 +10,7 @@ const subjectRoutes = require("./subject_routes.js");
 const extraActivityRoutes = require("./extra_activity_routes.js");
 const marksRoutes = require("./marks_routes.js");
 const organizationRoutes = require("./organization_routes.js");
+const notificationRoutes = require("./notification_routes.js");
 
 app.use("/admin", adminRoutes);
 app.use("/student", studentRoutes);
@@ -21,5 +22,6 @@ app.use("/subject", subjectRoutes);
 app.use("/extraActivity", extraActivityRoutes);
 app.use("/marks", marksRoutes);
 app.use("/organization", organizationRoutes);
+app.use("/notification", notificationRoutes);
 
 module.exports = app;
