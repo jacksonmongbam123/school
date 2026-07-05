@@ -155,6 +155,8 @@ router.post("/add", (req, res) => {
 
 //Update the student details
 router.post("/update/:id", utils.extractToken, (req, res) => {
+  console.log("[SERVER] Student update initiated. ID:", req.params.id);
+  console.log("[SERVER] Payload fields:", Object.keys(req.body || {}));
   tokenSchema
     .find({ token: req.token })
     .exec()
