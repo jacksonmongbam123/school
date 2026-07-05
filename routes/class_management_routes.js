@@ -96,12 +96,14 @@ router.post("/fee/add", utils.extractToken, (req, res) => {
                     message: "Invalid Token",
                 });
             }
+            const student_id = req.body.student_id || req.body.studentID;
+            const fee_status = req.body.fee_status || req.body.feeStatus;
             const feeModel = new feeSchema({
                 _id: new mongoose.Types.ObjectId(),
-                studentID: req.body.studentID,
+                student_id: student_id,
                 term: req.body.term,
                 year: req.body.year,
-                feeStatus: req.body.feeStatus,
+                fee_status: fee_status,
             });
             feeModel
                 .save()
@@ -132,12 +134,23 @@ router.post("/fee/updateStatus", utils.extractToken, (req, res) => {
                     message: "Invalid Token",
                 });
             }
-            feeSchema.find({studentID: req.body.studentID, term: req.body.term, year: req.body.year})
+            const student_id = req.body.student_id || req.body.studentID;
+            const fee_status = req.body.fee_status || req.body.feeStatus;
+            feeSchema.find({
+                $or: [
+                    { student_id: student_id, term: req.body.term, year: req.body.year },
+                    { studentID: student_id, term: req.body.term, year: req.body.year }
+                ]
+            })
                 .then((result) => {
                     if (!result || result.length === 0) {
                         return res.status(404).send("data is not found");
                     } else {
-                        result[0].feeStatus = req.body.feeStatus;
+                        if (result[0].fee_status !== undefined) {
+                            result[0].fee_status = fee_status;
+                        } else {
+                            result[0].feeStatus = fee_status;
+                        }
                         return result[0].save()
                             .then(() => {
                                 return res.json("Fee status updated");
