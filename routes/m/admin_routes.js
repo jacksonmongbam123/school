@@ -173,6 +173,12 @@ router.post("/update/:id", utils.extractToken, (req, res) => {
             error: err,
           });
         });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "Internal server error during update",
+        error: err.message || err,
+      });
     });
 });
 
