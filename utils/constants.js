@@ -56,4 +56,5 @@ module.exports = {
   REL_TEACHER_CLASS_COLLECTION_NAME: "rel_teacher_class",
   REL_TEACHER_QUALIFICATION_COLLECTION_NAME: "rel_teacher_qualification",
   REL_TEACHER_SUBJECT_CLASS_COLLECTION_NAME: "rel_teacher_subject_class",
+  REL_TEACHER_LEAVE_COLLECTION_NAME: "rel_teacher_leaves",
 };

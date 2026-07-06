@@ -8,6 +8,7 @@ const studentClassRoutes = require("./student_class_routes");
 const teacherClassRoutes = require("./teacher_class_routes");
 const teacherQualificationRoutes = require("./teacher_qualification_routes");
 const teacherSubjectClassRoutes = require("./teacher_subject_class_routes");
+const teacherLeaveRoutes = require("./teacher_leave_routes");
 
 app.use("/extraActivityTeacher", extraActivityTeacherRoutes);
 app.use("/parentStudent", parentStudentRoutes);
@@ -17,5 +18,6 @@ app.use("/studentClass", studentClassRoutes);
 app.use("/teacherClass", teacherClassRoutes);
 app.use("/teacherQualification", teacherQualificationRoutes);
 app.use("/teacherSubjectClass", teacherSubjectClassRoutes);
+app.use("/teacherLeave", teacherLeaveRoutes);
 
 module.exports = app;
