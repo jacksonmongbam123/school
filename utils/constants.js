@@ -14,6 +14,7 @@ module.exports = {
   HOMEWORK_COLLECTION_NAME: "homeworks",
   MEETING_COLLECTION_NAME: "meetings",
   NOTIFICATION_COLLECTION_NAME: "notifications",
+  TIMETABLE_COLLECTION_NAME: "timetables",
   HOMEWORK_DIRECTORY_PATH: "./uploads/homework/",
 
   // DF tables
