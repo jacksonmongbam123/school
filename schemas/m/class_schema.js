@@ -11,6 +11,9 @@ const schema = new mongoose.Schema({
   is_active: {
     type: Boolean,
   },
+  organization_id: {
+    type: String,
+  },
 });
 
 const compiledSchema = mongoose.model(
