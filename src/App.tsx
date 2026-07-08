@@ -6753,8 +6753,8 @@ export default function App() {
                       <Layers className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">Class Sections</p>
-                      <p className="text-xl font-extrabold text-slate-900 font-mono">{classSectionsList.length}</p>
+                      <p className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">Organizations</p>
+                      <p className="text-xl font-extrabold text-slate-900 font-mono">{organizationsList.length}</p>
                     </div>
                   </div>
 
