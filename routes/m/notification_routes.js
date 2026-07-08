@@ -22,10 +22,10 @@ async function getUserOrganizationId(req) {
     // First find the auth document to get the correct user_id (profile ID)
     const authSchema = require("../../schemas/auth_schema");
     const authRecord = await authSchema.findById(userId).lean();
-    if (!authRecord) return null;
-
-    const profileId = authRecord.user_id;
-    const role = authRecord.user_type;
+    
+    // Resilient fallback: if no authRecord is found, assume userId itself could be the profile ID
+    const profileId = authRecord ? authRecord.user_id : userId;
+    const role = authRecord ? authRecord.user_type : (decoded.role || decoded.user_type);
 
     let profile = null;
     if (role === constants.USER_TYPE_STUDENT) {
@@ -49,7 +49,12 @@ async function getUserOrganizationId(req) {
 
 router.post("/retrieve", async (req, res) => {
   try {
-    const organizationId = await getUserOrganizationId(req);
+    let organizationId = await getUserOrganizationId(req);
+    
+    // Highly resilient fallback: if no organization is found via token, look in the request body
+    if (!organizationId && req.body.organization_id) {
+      organizationId = req.body.organization_id;
+    }
     
     let query = {};
     if (organizationId) {
@@ -122,7 +127,10 @@ router.post("/retrieve/:id", (req, res) => {
 
 router.post("/add", async (req, res) => {
   try {
-    const organizationId = await getUserOrganizationId(req);
+    let organizationId = await getUserOrganizationId(req);
+    if (!organizationId && req.body.organization_id) {
+      organizationId = req.body.organization_id;
+    }
     const body = { ...req.body };
     if (organizationId && !body.organization_id) {
       body.organization_id = organizationId;
