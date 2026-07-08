@@ -16,19 +16,26 @@ async function getUserOrganizationId(req) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "abms_secret");
     const userId = decoded.user_id || decoded._id;
-    const role = decoded.role;
 
     if (!userId) return null;
 
+    // First find the auth document to get the correct user_id (profile ID)
+    const authSchema = require("../../schemas/auth_schema");
+    const authRecord = await authSchema.findById(userId).lean();
+    if (!authRecord) return null;
+
+    const profileId = authRecord.user_id;
+    const role = authRecord.user_type;
+
     let profile = null;
     if (role === constants.USER_TYPE_STUDENT) {
-      profile = await studentSchema.findById(userId).lean();
+      profile = await studentSchema.findById(profileId).lean();
     } else if (role === constants.USER_TYPE_TEACHER) {
-      profile = await teacherSchema.findById(userId).lean();
+      profile = await teacherSchema.findById(profileId).lean();
     } else if (role === constants.USER_TYPE_PARENT) {
-      profile = await parentSchema.findById(userId).lean();
+      profile = await parentSchema.findById(profileId).lean();
     } else if (role === constants.USER_TYPE_ADMIN) {
-      profile = await adminSchema.findById(userId).lean();
+      profile = await adminSchema.findById(profileId).lean();
     }
 
     if (profile && profile.organization_id) {
