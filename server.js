@@ -37,7 +37,7 @@ app.use("/rel", relRoutes);
 const configs = require('./config/config');
 const constants = require("./utils/constants");
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || (configs.MONGO_URI + "/" + constants.MONGO_DB_NAME);
 
 console.log("Connecting to MongoDB database...");
