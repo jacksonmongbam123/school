@@ -61,6 +61,14 @@ async function setupFrontend() {
     });
     app.use(vite.middlewares);
   } else {
+    console.log("Production environment detected. Automatically building frontend...");
+    try {
+      const { execSync } = require("child_process");
+      execSync("npm run build", { stdio: "inherit" });
+      console.log("Frontend build completed successfully!");
+    } catch (buildErr) {
+      console.error("Frontend build failed:", buildErr);
+    }
     console.log("Serving production build from dist/...");
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
