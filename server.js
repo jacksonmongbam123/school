@@ -52,7 +52,8 @@ mongoose
 
 // Vite full-stack middleware integration
 async function setupFrontend() {
-  if (process.env.NODE_ENV !== "production") {
+  const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+  if (!isProduction) {
     console.log("Integrating Vite Dev Server middleware...");
     const { createServer } = await import("vite");
     const vite = await createServer({
