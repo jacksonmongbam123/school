@@ -6777,7 +6777,7 @@ export default function App() {
                       <Bookmark className="h-5 w-5 text-indigo-600" />
                       <div>
                         <h3 className="text-sm font-bold text-slate-900">Subjects Management (m_subjects)</h3>
-                        <p className="text-[10px] text-slate-500 font-medium">Link academic subjects to corresponding class sections</p>
+                        <p className="text-[10px] text-slate-500 font-medium">Link academic subjects to corresponding organizations</p>
                       </div>
                     </div>
                     <span className="text-[10px] font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100">
