@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 const constants = require("../../utils/constants");
 
 const schema = new mongoose.Schema({
-    grade: {
-        type: String
-    },
     is_active: {
         type: Boolean
     },

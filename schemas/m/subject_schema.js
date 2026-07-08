@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
   subject: {
     type: String,
   },
-  class_section_id: {
+  organization_id: {
     type: String,
   },
   is_active: {

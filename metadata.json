@@ -1,6 +1,6 @@
 {
-  "name": "School Backend Server",
-  "description": "School management system backend API and WebSocket server, integrated with MongoDB Atlas.",
+  "name": "School Management System",
+  "description": "A comprehensive school management system that handles organization, classes, sections, subjects, students, teachers, parents, and homework tracking.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
