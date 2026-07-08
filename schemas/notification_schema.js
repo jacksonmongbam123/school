@@ -23,6 +23,10 @@ const schema = new mongoose.Schema({
     sender_id: {
         type: String
     },
+    organization_id: {
+        type: String,
+        default: null
+    },
     date: {
         type: Date,
         default: Date.now
