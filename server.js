@@ -32,6 +32,7 @@ app.use("/timetable", timetableRoutes);
 app.use("/df", dfRoutes);
 app.use("/m", mRoutes);
 app.use("/rel", relRoutes);
+app.use("/rel_teacher_qualifications", require("./routes/rel/teacher_qualification_routes"));
 
 // Database configuration
 const configs = require('./config/config');
