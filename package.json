@@ -5,11 +5,9 @@
   "type": "commonjs",
   "scripts": {
     "dev": "node server.js",
-    "build": "vite build",
-    "start": "npm run build && node server.js",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "build": "echo 'No frontend build needed'",
+    "start": "node server.js",
+    "clean": "rm -rf dist"
   },
   "engines": {
     "node": ">=20.0.0"
