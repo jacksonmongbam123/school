@@ -1,86 +1,134 @@
-require("dotenv").config();
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const busboy = require('connect-busboy');
-const path = require('path');
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import os from "os";
+import cluster from "cluster";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
 
-// Middlewares
-app.use(busboy());
-app.use(cors());
-app.use(bodyParser.json());
-
-// Serving static public directory if present
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Import Routes
-const loginRoute = require("./routes/login_route");
-const classRoutes = require("./routes/class_management_routes");
-const homeworkRoutes = require("./routes/homework_routes");
-const timetableRoutes = require("./routes/timetable_routes");
-const dfRoutes = require("./routes/df/df_routes");
-const mRoutes = require("./routes/m/m_routes");
-const relRoutes = require("./routes/rel/rel_routes");
-
-// Bind Routes
-app.use("/login", loginRoute);
-app.use("/class", classRoutes);
-app.use("/homework", homeworkRoutes);
-app.use("/timetable", timetableRoutes);
-app.use("/df", dfRoutes);
-app.use("/m", mRoutes);
-app.use("/rel", relRoutes);
-app.use("/rel_teacher_qualifications", require("./routes/rel/teacher_qualification_routes"));
-
-// Database configuration
-const configs = require('./config/config');
-const constants = require("./utils/constants");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || (configs.MONGO_URI + "/" + constants.MONGO_DB_NAME);
 
-console.log("Connecting to MongoDB database...");
-mongoose.set("bufferCommands", false); // Prevents database queries from buffering/hanging if connection is offline
-mongoose
-    .connect(mongoURI)
-    .then(() => {
-        console.log("MongoDB database connection established successfully!");
-    })
-    .catch(err => {
-        console.error("MongoDB connection error:", err.message);
-    });
+// High-performance concurrency: utilize multi-core clustering
+if (process.env.NODE_ENV === "production" && cluster.isPrimary) {
+  const numCPUs = os.cpus().length || 4;
+  console.log(`[Primary Process] Spawning ${numCPUs} worker processes to handle high traffic concurrently...`);
 
-// API health and status check endpoint
-app.get("/", (req, res) => {
-    res.json({
-        status: "ok",
-        message: "School Portal Backend Service is running.",
-        uptime: process.uptime()
-    });
-});
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-// Database offline graceful recovery middleware
-app.use((err, req, res, next) => {
-    if (err.name === 'MongooseError' || err.name === 'MongoNetworkError' || err.message.includes('buffering timed out')) {
-        console.warn('[AI Studio] Database offline — returning mock empty response');
-        if (req.method === 'GET') {
-            return res.json(req.path.endsWith('s') || req.path.endsWith('s/') ? [] : {});
-        }
-        return res.status(503).json({ error: 'Service temporarily unavailable (database offline)' });
+  cluster.on("exit", (worker, code, signal) => {
+    console.warn(`[Worker Process ${worker.process.pid}] exited with code: ${code}, signal: ${signal}. Spawning replacement worker...`);
+    cluster.fork();
+  });
+} else {
+  const app = express();
+
+  // 1. High-Performance Rate Limiter: Prevent server exhaustion during 100k spike traffic
+  const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute window
+    max: 1000, // limit each IP to 1000 requests per minute
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    message: {
+      status: 429,
+      error: "Too many requests from this IP, please try again shortly."
     }
-    next(err);
-});
+  });
+  app.use(limiter);
 
-// Start Server
-const server = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Backend Server running on http://localhost:${PORT}`);
-});
+  // 2. HTTP Payload Gzip Compression: Minimizes transfer overhead, reducing bandwidth and TTFB under massive load
+  app.use(compression({
+    level: 6, // optimal CPU-compression ratio trade-off
+    threshold: 1024, // compress responses over 1KB
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    }
+  }));
 
-// Socket Server
-const io = require("socket.io")(server);
-const socketEvents = require("./utils/socket_events");
-io.on(socketEvents.CONNECT, async (socket) => {
-    require('./sockets/chatMessage')(io, socket);
-});
+  // 3. Request parsing limits to prevent Memory Overload under 100k user payloads
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  // 4. Custom security & caching headers
+  app.use((req, res, next) => {
+    // Disable server header
+    res.removeHeader("X-Powered-By");
+    // Standard secure response headers
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    next();
+  });
+
+  // 5. Optimized Static File Serving with aggressive CDN/browser caching
+  // Since Vite static files contain a unique content hash, we can cache them for 1 year.
+  const staticCacheOptions = {
+    maxAge: "31536000s", // 1 Year in seconds
+    immutable: true, // Content never changes, bypasses validation
+    etag: true, // Keep ETags for conditional requests
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // If it's an HTML file (like index.html), do not cache indefinitely
+      if (filePath.endsWith(".html") || filePath.endsWith("index.html")) {
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+      } else {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }
+    }
+  };
+
+  app.use(express.static(path.join(__dirname, "dist"), staticCacheOptions));
+
+  // 6. High-Performance Health Endpoint
+  app.get("/api/healthz", (req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.status(200).json({
+      status: "healthy",
+      timestamp: Date.now(),
+      pid: process.pid,
+      uptime: process.uptime()
+    });
+  });
+
+  // 7. Wildcard Route (SPA routing)
+  app.get("*", (req, res) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
+  });
+
+  // 8. Start HTTP server and tune connection keep-alive for reverse proxy integrations
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[Worker Process ${process.pid}] online & serving high-volume traffic on port ${PORT}`);
+  });
+
+  // Tuning keep-alive to match high load-balancer timeouts, preventing connection reset race conditions
+  server.keepAliveTimeout = 65000; // 65 seconds
+  server.headersTimeout = 66000; // 66 seconds
+
+  // 9. Graceful Shutdown Management
+  const gracefulShutdown = (signal) => {
+    console.log(`Received ${signal}. Gracefully terminating active connection pools...`);
+    server.close(() => {
+      console.log("HTTP server closed. Exiting process.");
+      process.exit(0);
+    });
+
+    // Enforce shutdown after 10 seconds to avoid zombie processes
+    setTimeout(() => {
+      console.error("Forced exit due to open connections that failed to close in time.");
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+}
