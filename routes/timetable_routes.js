@@ -88,4 +88,50 @@ router.post("/delete/:id", utils.extractToken, (req, res) => {
         });
 });
 
+// Update timetable entry
+router.post("/update/:id", utils.extractToken, (req, res) => {
+    tokenSchema
+        .find({ token: req.token })
+        .exec()
+        .then((resultList) => {
+            if (resultList.length < 1) {
+                return res.status(401).json({
+                    message: "Invalid Token",
+                });
+            }
+
+            const updateData = {
+                class_id: req.body.class_id,
+                subject_id: req.body.subject_id,
+                day: req.body.day,
+                start_time: req.body.start_time,
+                end_time: req.body.end_time,
+                teacher_id: req.body.teacher_id,
+                room: req.body.room
+            };
+
+            timetableSchema.findOneAndUpdate({ _id: req.params.id }, { $set: updateData }, { new: true })
+                .then((result) => {
+                    if (!result) {
+                        return res.status(404).json({
+                            message: "Timetable entry not found"
+                        });
+                    }
+                    res.status(200).json({
+                        message: "Timetable entry updated successfully",
+                        updated: result,
+                    });
+                })
+                .catch((err) => {
+                    res.status(400).json({
+                        message: "Updating timetable entry failed",
+                        error: err.message,
+                    });
+                });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.message });
+        });
+});
+
 module.exports = router;
